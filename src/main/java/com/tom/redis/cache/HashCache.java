@@ -28,7 +28,7 @@ public class HashCache {
      * @param password
      * @param bigHashKey
      */
-    public void delBigHash(String host, int port, String password, String bigHashKey) {
+    public static void delBigHash(String host, int port, String password, String bigHashKey) {
         Jedis jedis = null;
         String cursor = SCAN_START;
         ScanParams scanParams = new ScanParams().count(100);
@@ -55,4 +55,44 @@ public class HashCache {
         }
     }
 
+    /**
+     * 新增Hash值
+     *
+     * @param hashKey
+     * @param hashValue
+     */
+    public static void hSet(String hashKey, Map<String, String> hashValue) {
+        Jedis jedis = null;
+        try {
+            jedis = JedisPoolFactory.getJedisPool().getResource();
+            for (String field : hashValue.keySet()) {
+                jedis.hset(hashKey, field, hashValue.get(field));
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (null == jedis) {
+                jedis.close();
+            }
+        }
+    }
+
+    /**
+     * 获取散列包含的键值对的长度
+     *
+     * @param hashKey
+     */
+    public static Long hLen(String hashKey) {
+        Jedis jedis = null;
+        try {
+            jedis = JedisPoolFactory.getJedisPool().getResource();
+            return jedis.hlen(hashKey);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (null != jedis) {
+                jedis.close();
+            }
+        }
+    }
 }

@@ -4,6 +4,8 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 /**
+ * Jedis Pool Factory
+ *
  * @author tomxin
  * @date 2018-11-04
  * @since v1.0.0
@@ -28,7 +30,7 @@ public class JedisPoolFactory {
 
                     jedisPoolConfig.setTestOnBorrow(true);
 
-                    jedisPool = new JedisPool(jedisPoolConfig, "192.168.201.94", 6379);
+                    jedisPool = new JedisPool(jedisPoolConfig, "101.132.109.136", 6379);
                 }
             }
         }
