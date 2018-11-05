@@ -1,5 +1,6 @@
 package com.tom.redis.cache;
 
+import com.tom.redis.pool.JedisPoolFactory;
 import com.tom.redis.util.CollectionUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.ScanParams;
@@ -28,21 +29,30 @@ public class HashCache {
      * @param bigHashKey
      */
     public void delBigHash(String host, int port, String password, String bigHashKey) {
-        Jedis jedis = new Jedis(host, port);
+        Jedis jedis = null;
         String cursor = SCAN_START;
-
         ScanParams scanParams = new ScanParams().count(100);
-        do {
-            ScanResult<Map.Entry<String, String>> scanResult = jedis.hscan(bigHashKey, cursor, scanParams);
-            List<Map.Entry<String, String>> entryList = scanResult.getResult();
-            if (!CollectionUtils.isEmpty(entryList)) {
-                for (Map.Entry<String, String> entry : entryList) {
-                    jedis.hdel(bigHashKey, entry.getKey());
+        try {
+            jedis = JedisPoolFactory.getJedisPool().getResource();
+            do {
+                ScanResult<Map.Entry<String, String>> scanResult = jedis.hscan(bigHashKey, cursor, scanParams);
+                List<Map.Entry<String, String>> entryList = scanResult.getResult();
+                if (!CollectionUtils.isEmpty(entryList)) {
+                    for (Map.Entry<String, String> entry : entryList) {
+                        jedis.hdel(bigHashKey, entry.getKey());
+                    }
                 }
+                cursor = scanResult.getStringCursor();
+            } while (!SCAN_START.equals(cursor));
+            // 删除
+            jedis.del(bigHashKey);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (null != jedis) {
+                jedis.close();
             }
-            cursor = scanResult.getStringCursor();
-        } while (!SCAN_START.equals(cursor));
-        // 删除
-        jedis.del(bigHashKey);
+        }
     }
+
 }
