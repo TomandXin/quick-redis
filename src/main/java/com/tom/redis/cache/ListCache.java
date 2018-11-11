@@ -3,6 +3,8 @@ package com.tom.redis.cache;
 import com.tom.redis.pool.JedisPoolFactory;
 import redis.clients.jedis.Jedis;
 
+import java.util.List;
+
 /**
  * List
  *
@@ -38,6 +40,68 @@ public class ListCache {
             throw new RuntimeException(e);
         } finally {
             if (null != null) {
+                jedis.close();
+            }
+        }
+    }
+
+    /**
+     * lPush
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    public Long lPush(String key, String value) {
+        Jedis jedis = null;
+        try {
+            jedis = JedisPoolFactory.getJedisPool().getResource();
+            return jedis.lpush(key, value);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (null != jedis) {
+                jedis.close();
+            }
+        }
+    }
+
+    /**
+     * lPop
+     *
+     * @param key
+     * @return
+     */
+    public String lPop(String key) {
+        Jedis jedis = null;
+        try {
+            jedis = JedisPoolFactory.getJedisPool().getResource();
+            return jedis.lpop(key);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (null != jedis) {
+                jedis.close();
+            }
+        }
+    }
+
+    /**
+     * blPop
+     *
+     * @param timeout
+     * @param key
+     * @return
+     */
+    public List<String> blPop(int timeout, String key) {
+        Jedis jedis = null;
+        try {
+            jedis = JedisPoolFactory.getJedisPool().getResource();
+            return jedis.blpop(timeout, key);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (null != jedis) {
                 jedis.close();
             }
         }
