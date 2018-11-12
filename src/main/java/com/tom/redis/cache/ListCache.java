@@ -66,6 +66,20 @@ public class ListCache {
         }
     }
 
+    public Long rPush(String key, String[] values) {
+        Jedis jedis = null;
+        try {
+            jedis = JedisPoolFactory.getJedisPool().getResource();
+            return jedis.rpush(key, values);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (null != jedis) {
+                jedis.close();
+            }
+        }
+    }
+
     /**
      * lPop
      *
