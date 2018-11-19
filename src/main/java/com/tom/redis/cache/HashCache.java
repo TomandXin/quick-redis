@@ -6,6 +6,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.ScanParams;
 import redis.clients.jedis.ScanResult;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -79,6 +80,7 @@ public class HashCache {
 
     /**
      * 获取散列包含的键值对的长度
+     * hlen key-name 返回散列包含的键值对数量
      *
      * @param hashKey
      */
@@ -95,4 +97,31 @@ public class HashCache {
             }
         }
     }
+
+    /**
+     * 删除一个或多个键值对
+     *
+     * @param hashKey
+     * @param fields
+     * @return
+     */
+    public static long hdel(String hashKey, String... fields) {
+        // 判空
+        if (fields.length <= 0 || null == hashKey || hashKey.length() == 0) {
+            return 0;
+        }
+        Jedis jedis = null;
+        try {
+            jedis = JedisPoolFactory.getJedisPool().getResource();
+            // 删除一个或多个键值对
+            return jedis.hdel(hashKey, fields);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (null != jedis) {
+                jedis.close();
+            }
+        }
+    }
+
 }
